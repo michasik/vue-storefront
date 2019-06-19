@@ -390,4 +390,18 @@ describe('Cart actions', () => {
       expect(contextMock.dispatch).not.toBeCalled()
     })
   })
+
+  describe('#refreshTotals', () => {
+    it('dispatches #syncTotals', async () => {
+      const contextMock = {
+        dispatch: jest.fn(),
+      };
+      const payload = 'Halabala';
+      const wrapper = (actions: any) => actions.refreshTotals(contextMock, payload)
+
+      await wrapper(cartActions)
+
+      expect(contextMock.dispatch).toBeCalledWith('syncTotals', payload);
+    })
+  })
 });
