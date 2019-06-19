@@ -122,7 +122,7 @@ describe('Cart actions', () => {
         }
       };
 
-      config.cart = { synchronize: true };
+      config['cart'] = { synchronize: true };
       (rootStore as any).state = {
         checkout: {
           shippingDetails: {
@@ -158,7 +158,7 @@ describe('Cart actions', () => {
         dispatch: jest.fn()
       };
 
-      config.cart = { synchronize: false };
+      config['cart'] = { synchronize: false };
 
       const wrapper = (actions: any) => actions.serverPull(contextMock, {});
 
@@ -174,7 +174,7 @@ describe('Cart actions', () => {
         dispatch: jest.fn()
       };
 
-      config.cart = { synchronize: true };
+      config['cart'] = { synchronize: true };
 
       const wrapper = (actions: any) => actions.serverPull(contextMock, {});
 
@@ -194,7 +194,7 @@ describe('Cart actions', () => {
         }
       };
 
-      config.cart = { synchronize_totals: false };
+      config['cart'] = { synchronize_totals: false };
 
       const wrapper = (actions: any) => actions.syncTotals(contextMock);
 
@@ -206,7 +206,7 @@ describe('Cart actions', () => {
     it('does not do anything in SSR environment', () => {
       const contextMock = {};
 
-      config.cart = { synchronize_totals: true };
+      config['cart'] = { synchronize_totals: true };
 
       const wrapper = (actions: any) => actions.syncTotals(contextMock);
 
@@ -225,7 +225,7 @@ describe('Cart actions', () => {
         getters: { isCartSyncEnabled: () => true, isTotalsSyncRequired: () => true, isSyncRequired: () => true, isCartConnected: () => true }
       };
 
-      config.cart = { synchronize: true };
+      config['cart'] = { synchronize: true };
 
       isServerSpy.mockReturnValueOnce(false);
       Date.now = jest.fn(() => 1000003000);
@@ -247,7 +247,7 @@ describe('Cart actions', () => {
         }
       };
 
-      config.cart = {
+      config['cart'] = {
         synchronize: true,
         create_endpoint: 'http://example.url/guest-cart/{{token}}'
       };
@@ -269,7 +269,7 @@ describe('Cart actions', () => {
         }
       };
 
-      config.cart = { synchronize: true };
+      config['cart'] = { synchronize: true };
 
       isServerSpy.mockReturnValueOnce(false);
       Date.now = jest.fn(() => 1000000050);
@@ -284,7 +284,7 @@ describe('Cart actions', () => {
     it('does not do anything if totals synchronization is off', () => {
       const contextMock = {};
 
-      config.cart = { synchronize: false };
+      config['cart'] = { synchronize: false };
 
       const wrapper = (actions: any) => actions.connect(contextMock, {});
 
@@ -296,7 +296,7 @@ describe('Cart actions', () => {
     it('does not do anything in SSR environment', () => {
       const contextMock = {};
 
-      config.cart = { synchronize: true };
+      config['cart'] = { synchronize: true };
 
       const wrapper = (actions: any) => actions.connect(contextMock, {});
 
@@ -310,6 +310,48 @@ describe('Cart actions', () => {
     let contextMock;
     const couponCode = 'qwerty';
     const wrapper = (actions: any) => actions.applyCoupon(contextMock, couponCode)
+
+    beforeEach(() => {
+      contextMock = {
+        getters: {
+          isTotalsSyncEnabled: () => true,
+          isCartConnected: () => true
+        },
+        dispatch: jest.fn(),
+      };
+      config['cart'] = {
+        applycoupon_endpoint: 'http://example.url/'
+      };
+    });
+
+    it('dispatches #syncTotals if POST for apply coupon returns true', async () => {
+      (TaskQueue.execute as jest.Mock).mockImplementationOnce(() => Promise.resolve({ result: true }));
+
+      await wrapper(cartActions)
+
+      expect(contextMock.dispatch).toBeCalledWith('syncTotals', { forceServerSync: true })
+    })
+
+    it('does not dispatch #syncTotals if  POST for apply coupon returns false', async () => {
+      (TaskQueue.execute as jest.Mock).mockImplementationOnce(() => Promise.resolve({ result: false }));
+
+      await wrapper(cartActions)
+
+      expect(contextMock.dispatch).not.toBeCalled()
+    })
+
+    it('does not dispatch #syncTotals if POST for apply coupon throws an error', async () => {
+      (TaskQueue.execute as jest.Mock).mockImplementationOnce(() => Promise.resolve(new Error('Async error')));
+
+      await wrapper(cartActions)
+
+      expect(contextMock.dispatch).not.toBeCalled()
+    })
+  })
+
+  describe('#removeCoupon', () => {
+    let contextMock;
+    const wrapper = (actions: any) => actions.removeCoupon(contextMock)
 
     beforeEach(() => {
       contextMock = {
