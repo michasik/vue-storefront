@@ -404,4 +404,56 @@ describe('Cart actions', () => {
       expect(contextMock.dispatch).toBeCalledWith('syncTotals', payload);
     })
   })
+
+  describe('#removeItem', () => {
+    it('commits mutation to remove item from the cart', async () => {
+      const contextMock = {
+        commit: jest.fn(),
+        dispatch: jest.fn(),
+        getters: { isCartSyncEnabled: true }
+      };
+      const payload = {
+        product: {
+          server_item_id: 1
+        },
+        removeByParentSku: true,
+      }
+
+      const wrapper = (actions: any) => actions.removeItem(contextMock, payload)
+      await wrapper(cartActions);
+
+      expect(contextMock.commit).toBeCalledWith(types.CART_DEL_ITEM, payload)
+      expect(contextMock.dispatch).toBeCalledWith('sync', { forceClientState: true });
+    })
+  })
+
+  describe('#addItem', () => {
+    let contextMock;
+    let payload;
+    const wrapper = (actions: any) => actions.addItem(contextMock, payload)
+    beforeEach(() => {
+      contextMock = {
+        dispatch: jest.fn(),
+      };
+      payload = {
+        productToAdd: {
+          type_id: 'grouped',
+          product_links: ['PL']
+        }
+      }
+    })
+    it('dispatches addItems for product type "grouped"', async () => {
+      await wrapper(cartActions);
+
+      expect(contextMock.dispatch).toBeCalledWith('addItems', { productsToAdd: [], forceServerSilence: false })
+    })
+
+    it('dispatches addItems for product type other than "grouped"', async () => {
+      payload.productToAdd.type_id = 'XXX';
+
+      await wrapper(cartActions);
+
+      expect(contextMock.dispatch).toBeCalledWith('addItems', { productsToAdd: [payload.productToAdd], forceServerSilence: false })
+    })
+  })
 });
