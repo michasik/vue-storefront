@@ -9,7 +9,6 @@ module.exports = {
   testMatch: [
     '<rootDir>/src/**/test/unit/**/*.spec.(js|ts)',
     '<rootDir>/core/**/test/unit/**/*.spec.(js|ts)',
-    // '<rootDir>/core/modules/cart/test/unit/store/actions.spec.(js|ts)',
   ],
   transform: {
     '^.+\\.js$': '<rootDir>/node_modules/babel-jest',
@@ -20,7 +19,6 @@ module.exports = {
   coverageDirectory: '<rootDir>/test/unit/coverage',
   collectCoverage: true,
   collectCoverageFrom: [
-    // 'core/modules/cart/**/actions.ts'
     'src/**/*.{js,ts,vue}',
     'core/**/*.{js,ts,vue}',
     '!src/**/types/*.{js,ts}',
