@@ -11,7 +11,7 @@
       >
         <router-link
           class="px25 py20 cl-accent no-underline col-xs"
-          :to="categoryLink({ url_path: parentPath, slug: parentSlug })"
+          :to="formatCategoryLink({ url_path: parentPath, slug: parentSlug })"
           data-testid="categoryLink"
         >
           {{ $t('View all') }}
@@ -35,7 +35,7 @@
           <router-link
             v-else
             class="px25 py20 cl-accent no-underline col-xs"
-            :to="categoryLink(link)"
+            :to="formatCategoryLink(link)"
           >
             {{ link.name }}
           </router-link>
@@ -155,9 +155,6 @@ export default {
           action1: { label: i18n.t('OK') }
         })
       }
-    },
-    categoryLink (category) {
-      return formatCategoryLink(category)
     }
   }
 }

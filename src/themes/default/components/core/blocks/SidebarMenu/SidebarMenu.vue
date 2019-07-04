@@ -52,7 +52,7 @@
               <router-link
                 v-else
                 class="px25 py20 cl-accent no-underline col-xs"
-                :to="categoryLink(category)"
+                :to="formatCategoryLink(category)"
               >
                 {{ category.name }}
               </router-link>
@@ -219,9 +219,6 @@ export default {
           this.$router.push({ name: 'my-account' })
         })
       }
-    },
-    categoryLink (category) {
-      return this.formatCategoryLink(category)
     }
   }
 }
